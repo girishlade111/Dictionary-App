@@ -330,32 +330,29 @@
       }
       function setVoice() {
         let selectedVoice = null;
-        if (voiceType === 'male') {
-          // Heuristically choose a male voice (names like "David", "Mark", etc.)
-          for (let v of voices) {
-            if (v.name.toLowerCase().includes("david") || v.name.toLowerCase().includes("male") || v.name.toLowerCase().includes("mark") || v.name.toLowerCase().includes("alex")) {
-              selectedVoice = v;
-              break;
+
+        // Filter voices based on common keywords.
+        const maleVoices = voices.filter(v => v.name.toLowerCase().includes('male'));
+        const femaleVoices = voices.filter(v => v.name.toLowerCase().includes('female'));
+
+        if (voiceType === 'male' && maleVoices.length > 0) {
+            selectedVoice = maleVoices[0]; // Use the first available male voice
+        } else if (voiceType === 'female' && femaleVoices.length > 0) {
+            selectedVoice = femaleVoices[0]; // Use the first available female voice
+        } else {
+            // Fallback: If a specific gender isn't found, try to find a voice that isn't the other gender.
+            if (voiceType === 'male') {
+                selectedVoice = voices.find(v => !v.name.toLowerCase().includes('female'));
+            } else if (voiceType === 'female') {
+                selectedVoice = voices.find(v => !v.name.toLowerCase().includes('male'));
             }
-          }
-          if (!selectedVoice) {
-            selectedVoice = voices.find(v => !v.name.toLowerCase().includes("zira"));
-          }
-        } else if (voiceType === 'female') {
-          // Heuristically choose a female voice (names like "Zira" or containing "female")
-          for (let v of voices) {
-            if (v.name.toLowerCase().includes("zira") || v.name.toLowerCase().includes("female")) {
-              selectedVoice = v;
-              break;
-            }
-          }
-          if (!selectedVoice) {
-            selectedVoice = voices[0];
-          }
         }
+
+        // If no suitable voice has been found, default to the first available voice.
         if (!selectedVoice) {
-          selectedVoice = voices[0];
+            selectedVoice = voices[0];
         }
+
         utterance.voice = selectedVoice;
         window.speechSynthesis.speak(utterance);
       }
